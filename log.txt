@@ -1,0 +1,43 @@
+Deleting data with value: 5
+7
+Calls destructor with value: 7
+
+3
+13856032
+
+Calls destructor with value: 9
+13856032
+3
+Calls destructor with value: 3
+
+3
+Calls destructor with value: 3
+
+1
+2
+3
+Calls destructor with value: 0xd36d00
+
+Name: Name
+Age: 40
+
+Calls destructor with value: 0xd36d44
+Calls destructor with value: Name: Name
+Age: 40
+
+Calls destructor
+
+
+228
+
+Hello, World!
+Hello, World!
+Calls destructor with value: 2
+Calls destructor with value: Name: Ivan
+Age: 229
+
+Calls destructor
+Calls destructor
+
+Process finished with exit code 0
+
