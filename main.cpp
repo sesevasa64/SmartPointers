@@ -3,7 +3,7 @@
 #include <string>
 #include <utility>
 #include "lib/UniquePtr.h"
-using  namespace std;
+using namespace std;
 
 class Person {
 private:
@@ -30,9 +30,18 @@ ostream& operator<<(ostream& os, const Person& person)
 
 int main() {
     {
+        UniquePtr<int[]> ptr(new int[6]);
+        ptr = makeUnique<int[]>(6);
+        cout << ptr[3] << endl;
+    }
+    cout << endl;
+    {
         auto uptr = make_unique<int>(42);
         auto uptr2(make_unique<int>(42));
         auto uptr3 = move(uptr2);
+        unique_ptr<int[]> ptr5(new int[4]{0, 1, 2, 3});
+        cout << *(ptr5.get() + 1) << endl;
+        ptr5 = make_unique<int[]>(54);
         auto ptr(makeUnique<int>(2));
         cout << *ptr << endl;
         auto ptr2 = move(ptr);
