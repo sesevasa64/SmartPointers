@@ -12,11 +12,18 @@ private:
 public:
     UniquePtr<T>() : data(new T) {}
     explicit UniquePtr<T>(T* source) : data(source) {}
+    UniquePtr<T>(const UniquePtr<T>& obj) = delete;
+    UniquePtr<T>(UniquePtr<T>&& obj) noexcept : data(std::exchange(obj.data, nullptr))  {}
     ~UniquePtr<T>() {
         if(data) {
             std::cout << "Calls destructor with value: " << *data << std::endl;
             delete data;
         }
+    }
+    UniquePtr<T>& operator=(UniquePtr<T> const &) = delete;
+    UniquePtr<T>& operator=(UniquePtr<T>&& obj) noexcept {
+        std::swap(data, obj.data);
+        return *this;
     }
     T* Get() const {
         return data;
@@ -33,12 +40,11 @@ public:
         data = nullptr;
         return temp;
     }
-    UniquePtr<T>(const UniquePtr<T>& obj) = delete;
-    UniquePtr<T>& operator=(UniquePtr<T> const &) = delete;
-    UniquePtr<T>(UniquePtr<T>&& obj) noexcept : data(std::exchange(obj.data, nullptr))  {}
-    UniquePtr<T>& operator=(UniquePtr<T>&& obj) noexcept {
+    bool Equal(UniquePtr<T>& obj) {
+        return data == obj.data;
+    }
+    void swap(UniquePtr<T>& obj) {
         std::swap(data, obj.data);
-        return *this;
     }
     T& operator*()  const {
         return *data;
@@ -58,14 +64,21 @@ private:
 public:
     UniquePtr<T[]>() : data(nullptr) {}
     explicit UniquePtr<T[]>(T source[]) : data(source) {}
+    UniquePtr<T[]>(UniquePtr<T[]>&& obj) noexcept : data(std::exchange(obj.data, nullptr)) {}
+    UniquePtr<T[]>(const UniquePtr<T[]>& obj) = delete;
     ~UniquePtr<T[]>() {
         if(data) {
             std::cout << "Calls destructor with value: " << data << std::endl;
             delete[] data;
         }
     }
-    T* Get() const {
-        return data;
+    UniquePtr<T[]>& operator=(UniquePtr<T[]> const &) = delete;
+    UniquePtr<T[]>& operator=(UniquePtr<T[]>&& obj) noexcept {
+        std::swap(data, obj.data);
+        return *this;
+    }
+    T& operator[](size_t index) {
+        return data[index];
     }
     void Reset(T* source = nullptr) {
         std::cout << "Deleting data with value: " << data << std::endl;
@@ -79,35 +92,19 @@ public:
         data = nullptr;
         return temp;
     }
-    UniquePtr<T[]>(const UniquePtr<T[]>& obj) = delete;
-    UniquePtr<T[]>& operator=(UniquePtr<T[]> const &) = delete;
-    T& operator[](size_t index) {
-        return data[index];
+    T* Get() const {
+        return data;
     }
-    UniquePtr<T[]>(UniquePtr<T[]>&& obj) noexcept : data(std::exchange(obj.data, nullptr))  {}
-    UniquePtr<T[]>& operator=(UniquePtr<T[]>&& obj) noexcept {
+    bool Equal(UniquePtr<T>& obj) {
+        return data == obj.data;
+    }
+    void swap(UniquePtr<T>& obj) {
         std::swap(data, obj.data);
-        return *this;
     }
     explicit operator bool() const {
         return data;
     }
 };
-
-// Если честно, то я не очень понимаю как работает код ниже,
-// но я как-то смог написать создание массива с заданным размером
-
-/*template<typename T, typename... Args>
-UniquePtr<T> makeUnique(Args&&... args)
-{
-    return UniquePtr<T>(new T(std::forward<Args>(args)...));
-}
-
-template<typename T, size_t N>
-UniquePtr<T[]> makeUnique()
-{
-    return UniquePtr<T[]>(new T[N]);
-}*/
 
 template <typename T>
 struct makeUniqueHelper {
@@ -119,7 +116,7 @@ struct makeUniqueHelper {
     }
 };
 
-/*template<typename T, std::size_t N>
+template<typename T, std::size_t N>
 struct makeUniqueHelper<T[N]> {
     typedef UniquePtr<T[]> UniquePtr;
 
@@ -138,16 +135,6 @@ struct makeUniqueHelper<T[]> {
     template <typename... Args>
     static inline UniquePtr make(Args&&... args) {
         return UniquePtr(new T[sizeof...(Args)]{std::forward<Args>(args)...});
-    }
-};*/
-
-template<typename T>
-struct makeUniqueHelper<T[]> {
-    typedef UniquePtr<T[]> UniquePtr;
-
-    template <typename... Args>
-    static inline UniquePtr make(size_t size) {
-        return UniquePtr(new T[size]);
     }
 };
 

@@ -3,4 +3,4 @@ project(SmartPointers)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(SmartPointers main.cpp lib/UniquePtr.h)
+add_executable(SmartPointers main.cpp lib/UniquePtr.h lib/SharedPtr.h)

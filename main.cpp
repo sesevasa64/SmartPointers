@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 #include "lib/UniquePtr.h"
+#include "lib/SharedPtr.h"
 using namespace std;
 
 class Person {
@@ -30,8 +31,22 @@ ostream& operator<<(ostream& os, const Person& person)
 
 int main() {
     {
+        auto a(makeShared<int>(5));
+        cout << UniquePtr<int>(new int(3)) << endl;
+    }
+    cout << endl;
+    {
+        SharedPtr<int> a(new int(3));
+        SharedPtr<int> b(a);
+        SharedPtr<int> c = b;
+        b = makeShared<int>(5);
+    }
+    cout << endl;
+    {
         UniquePtr<int[]> ptr(new int[6]);
-        ptr = makeUnique<int[]>(6);
+        ptr = makeUnique<int[]>(1, 2, 3);
+        ptr = makeUnique<int[100]>();
+        ptr[3] = 5;
         cout << ptr[3] << endl;
     }
     cout << endl;
