@@ -57,6 +57,12 @@ public:
         std::swap(ref, obj.ref);
         return *this;
     }
+    bool operator==(UniquePtr<T>& obj) {
+        return data == obj.data;
+    }
+    bool operator!=(UniquePtr<T>& obj) {
+        return data != obj.data;
+    }
     void Reset(T* source = nullptr) {
         *ref -= 1;
         if(*ref == 0) {
@@ -74,10 +80,7 @@ public:
         return *ref - !data;
     }
     bool Unique() {
-        return data;
-    }
-    bool Equal(SharedPtr<T>& obj) {
-        return data == obj.data;
+        return useCount() == 1;
     }
     T* Get() const {
         return data;
@@ -91,6 +94,95 @@ public:
     }
     T* operator->() const {
         return data;
+    }
+    explicit operator bool() const {
+        return data;
+    }
+};
+
+template<typename T>
+class SharedPtr<T[]> {
+private:
+    T* data;
+    int* ref;
+public:
+    SharedPtr<T[]>() : data(nullptr), ref(new int(1)) {}
+    explicit SharedPtr<T[]>(T data[]) : data(data), ref(new int(1)) {}
+    SharedPtr<T[]>(SharedPtr<T[]>& obj) : data(obj.data) {
+        ref = obj.ref;
+        *ref += 1;
+    }
+    SharedPtr<T[]>(SharedPtr<T[]>&& obj) noexcept :
+            data(std::exchange(obj.data, nullptr)),
+            ref(std::exchange(obj.ref, new int(1))) {}
+    ~SharedPtr() {
+        *ref -= 1;
+        std::cout << "Calls destructor";
+        if(*ref == 0) {
+            if(data) {
+                std::cout << " with value: " << *data << std::endl;
+                delete data;
+            }
+            delete ref;
+        }
+        else {
+            std::cout << std::endl;
+        }
+    }
+    SharedPtr<T[]>& operator=(const SharedPtr<T[]>& obj) {
+        if(this != &obj) {
+            *ref -= 1;
+            if(ref == 0) {
+                if(data) {
+                    delete data;
+                }
+                delete ref;
+            }
+            data = obj.data;
+            ref = obj.ref;
+            *ref += 1;
+        }
+        return *this;
+    }
+    SharedPtr<T[]>& operator=(SharedPtr<T[]>&& obj) noexcept {
+        std::swap(data, obj.data);
+        std::swap(ref, obj.ref);
+        return *this;
+    }
+    T& operator[](size_t index) {
+        return data[index];
+    }
+    bool operator==(SharedPtr<T[]>& obj) {
+        return data == obj.data;
+    }
+    bool operator!=(SharedPtr<T[]>& obj) {
+        return data != obj.data;
+    }
+    void Reset(T* source = nullptr) {
+        *ref -= 1;
+        if(*ref == 0) {
+            if(data) {
+                std::cout << "Deleting data with value: " << data << std::endl;
+                delete data;
+            }
+            delete ref;
+        }
+        ref = new int(1);
+        data = source;
+    }
+    int useCount() {
+        //return data ? *ref : 0;
+        return *ref - !data;
+    }
+    bool Unique() {
+        return useCount() == 1;
+    }
+    T* Get() const {
+        return data;
+    }
+    void swap(SharedPtr<T[]>& obj) {
+        std::swap(data, obj.data);
+        std::swap(ref, obj.ref);
     }
     explicit operator bool() const {
         return data;

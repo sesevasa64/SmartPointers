@@ -25,6 +25,12 @@ public:
         std::swap(data, obj.data);
         return *this;
     }
+    bool operator==(UniquePtr<T>& obj) {
+        return data == obj.data;
+    }
+    bool operator!=(UniquePtr<T>& obj) {
+        return data != obj.data;
+    }
     T* Get() const {
         return data;
     }
@@ -39,9 +45,6 @@ public:
         T* temp = data;
         data = nullptr;
         return temp;
-    }
-    bool Equal(UniquePtr<T>& obj) {
-        return data == obj.data;
     }
     void swap(UniquePtr<T>& obj) {
         std::swap(data, obj.data);
@@ -80,6 +83,12 @@ public:
     T& operator[](size_t index) {
         return data[index];
     }
+    bool operator==(UniquePtr<T[]>& obj) {
+        return data == obj.data;
+    }
+    bool operator!=(UniquePtr<T[]>& obj) {
+        return data != obj.data;
+    }
     void Reset(T* source = nullptr) {
         std::cout << "Deleting data with value: " << data << std::endl;
         if(data) {
@@ -94,9 +103,6 @@ public:
     }
     T* Get() const {
         return data;
-    }
-    bool Equal(UniquePtr<T>& obj) {
-        return data == obj.data;
     }
     void swap(UniquePtr<T>& obj) {
         std::swap(data, obj.data);

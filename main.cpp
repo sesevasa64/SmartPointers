@@ -32,7 +32,6 @@ ostream& operator<<(ostream& os, const Person& person)
 int main() {
     {
         auto a(makeShared<int>(5));
-        cout << UniquePtr<int>(new int(3)) << endl;
     }
     cout << endl;
     {
@@ -40,6 +39,8 @@ int main() {
         SharedPtr<int> b(a);
         SharedPtr<int> c = b;
         b = makeShared<int>(5);
+        auto d = makeShared<int>(5);
+        auto e = makeShared<int[5]>();
     }
     cout << endl;
     {
